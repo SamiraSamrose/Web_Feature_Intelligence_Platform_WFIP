@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Feature Intelligence Platform</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #667eea;
+        }
+
+        .nav-tab:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .card h3 {
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card h3 {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .detail {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .feature-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge.high-risk {
+            background: #ff4757;
+            color: white;
+        }
+
+        .badge.medium-risk {
+            background: #ffa502;
+            color: white;
+        }
+
+        .badge.low-risk {
+            background: #2ed573;
+            color: white;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .heatmap-cell {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            padding: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .heatmap-cell:hover {
+            transform: scale(1.05);
+            cursor: pointer;
+        }
+
+        .heatmap-cell .team-name {
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+
+        .heatmap-cell .percentage {
+            font-size: 1.8em;
+        }
+
+        .risk-report {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .risk-report.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .risk-score {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .risk-gauge {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+            margin-top: 20px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #667eea;
+        }
+
+        .timeline-item {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -35px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #667eea;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        .region-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .region-table th,
+        .region-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .region-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .region-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Web Feature Intelligence Platform</h1>
+            <p>Smart dashboard for tracking web feature compatibility, technical debt, and risk-aware decision making</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="nav-tab" onclick="switchTab('compatibility')">Compatibility Scoring</button>
+            <button class="nav-tab" onclick="switchTab('heatmap')">Internal UI Heatmap</button>
+            <button class="nav-tab" onclick="switchTab('risk')">Feature Risk Scorer</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="grid">
+                <div class="stat-card">
+                    <h3>Global Support Score</h3>
+                    <div class="value">87.3%</div>
+                    <div class="detail">Across all deployed UIs</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Critical Issues</h3>
+                    <div class="value">12</div>
+                    <div class="detail">High-risk features in production</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Apps Scanned</h3>
+                    <div class="value">47</div>
+                    <div class="detail">Internal & external UIs</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Users Impacted</h3>
+                    <div class="value">2.4M</div>
+                    <div class="detail">Potentially degraded experience</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Recent Feature Alerts</h2>
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <span class="feature-name">CSS :has() selector - Dashboard v2.3</span>
+                        <span class="badge high-risk">High Risk - 32% users</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-name">Container Queries - Product Page</span>
+                        <span class="badge high-risk">High Risk - 28% users</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-name">backdrop-filter - Modal Component</span>
+                        <span class="badge medium-risk">Medium Risk - 15% users</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-name">scroll-snap - Gallery View</span>
+                        <span class="badge low-risk">Low Risk - 5% users</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>Feature Usage Trends</h2>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compatibility Scoring Tab -->
+        <div id="compatibility" class="tab-content">
+            <div class="card">
+                <h2>🌍 Global Compatibility Analysis</h2>
+                <div class="input-group">
+                    <label>Select UI/Component</label>
+                    <select id="uiSelect">
+                        <option>Dashboard v2.3</option>
+                        <option>Product Listing Page</option>
+                        <option>User Profile</option>
+                        <option>Admin Panel</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="analyzeCompatibility()">Analyze Compatibility</button>
+
+                <div id="compatResult" style="display: none; margin-top: 20px;">
+                    <h3>Compatibility Report</h3>
+                    <div class="grid">
+                        <div class="stat-card">
+                            <h3>Global Support</h3>
+                            <div class="value">76.8%</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Baseline Compliant</h3>
+                            <div class="value">64%</div>
+                        </div>
+                    </div>
+
+                    <table class="region-table">
+                        <thead>
+                            <tr>
+                                <th>Region</th>
+                                <th>Support %</th>
+                                <th>Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>🇺🇸 North America</td>
+                                <td>91.2%</td>
+                                <td><span class="badge low-risk">Low</span></td>
+                            </tr>
+                            <tr>
+                                <td>🇪🇺 Europe</td>
+                                <td>88.5%</td>
+                                <td><span class="badge low-risk">Low</span></td>
+                            </tr>
+                            <tr>
+                                <td>🇮🇳 India</td>
+                                <td>62.3%</td>
+                                <td><span class="badge high-risk">High</span></td>
+                            </tr>
+                            <tr>
+                                <td>🇧🇷 Latin America</td>
+                                <td>69.7%</td>
+                                <td><span class="badge medium-risk">Medium</span></td>
+                            </tr>
+                            <tr>
+                                <td>🇨🇳 Asia Pacific</td>
+                                <td>71.4%</td>
+                                <td><span class="badge medium-risk">Medium</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3 style="margin-top: 30px;">Top Affected Markets</h3>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <span>India - Older Android devices (Samsung Internet, UC Browser)</span>
+                            <span class="badge high-risk">2.8M users</span>
+                        </li>
+                        <li class="feature-item">
+                            <span>Brazil - Chrome 95-100 on low-end devices</span>
+                            <span class="badge medium-risk">1.2M users</span>
+                        </li>
+                        <li class="feature-item">
+                            <span>Indonesia - Opera Mini users</span>
+                            <span class="badge medium-risk">890K users</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Heatmap Tab -->
+        <div id="heatmap" class="tab-content">
+            <div class="card">
+                <h2>🗺️ Internal UI Technical Debt Heatmap</h2>
+                <p style="margin-bottom: 20px;">Baseline feature compliance across teams (higher = better)</p>
+                
+                <div class="heatmap-grid">
+                    <div class="heatmap-cell" style="background: #2ed573;">
+                        <div class="team-name">Team Alpha</div>
+                        <div class="percentage">92%</div>
+                    </div>
+                    <div class="heatmap-cell" style="background: #26de81;">
+                        <div class="team-name">Team Bravo</div>
+                        <div class="percentage">85%</div>
+                    </div>
+                    <div class="heatmap-cell" style="background: #ffa502;">
+                        <div class="team-name">Team Charlie</div>
+                        <div class="percentage">68%</div>
+                    </div>
+                    <div class="heatmap-cell" style="background: #ff6348;">
+                        <div class="team-name">Team Delta</div>
+                        <div class="percentage">57%</div>
+                    </div>
+                    <div class="heatmap-cell" style="background: #ff4757;">
+                        <div class="team-name">Team Echo</div>
+                        <div class="percentage">43%</div>
+                    </div>
+                    <div class="heatmap-cell" style="background: #45e897;">
+                        <div class="team-name">Team Foxtrot</div>
+                        <div class="percentage">78%</div>
+                    </div>
+                    <div class="heatmap-cell" style="background: #2ed573;">
+                        <div class="team-name">Team Golf</div>
+                        <div class="percentage">91%</div>
+                    </div>
+                    <div class="heatmap-cell" style="background: #ffa502;">
+                        <div class="team-name">Team Hotel</div>
+                        <div class="percentage">64%</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Legacy Feature Usage</h3>
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <div>
+                            <div class="feature-name">Deprecated MutationObserver patterns</div>
+                            <div style="font-size: 0.9em; color: #666;">25 UIs still using legacy implementations</div>
+                        </div>
+                        <span class="badge high-risk">Critical</span>
+                    </li>
+                    <li class="feature-item">
+                        <div>
+                            <div class="feature-name">Non-standard CSS vendor prefixes</div>
+                            <div style="font-size: 0.9em; color: #666;">18 UIs with -webkit- only styles</div>
+                        </div>
+                        <span class="badge medium-risk">Warning</span>
+                    </li>
+                    <li class="feature-item">
+                        <div>
+                            <div class="feature-name">document.write() in production</div>
+                            <div style="font-size: 0.9em; color: #666;">12 UIs using synchronous scripts</div>
+                        </div>
+                        <span class="badge high-risk">Critical</span>
+                    </li>
+                    <li class="feature-item">
+                        <div>
+                            <div class="feature-name">Flash fallback code</div>
+                            <div style="font-size: 0.9em; color: #666;">5 UIs with dead code paths</div>
+                        </div>
+                        <span class="badge low-risk">Cleanup</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>Team Breakdown - Team Echo (43% Compliant)</h2>
+                <div class="chart-container">
+                    <canvas id="teamChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Scorer Tab -->
+        <div id="risk" class="tab-content">
+            <div class="card">
+                <h2>📊 Feature Risk Assessment Tool</h2>
+                <p>Evaluate the risk and impact of adopting new web features</p>
+
+                <div class="input-group">
+                    <label>Feature Name</label>
+                    <input type="text" id="featureName" placeholder="e.g., CSS :has() selector, Container Queries">
+                </div>
+
+                <div class="input-group">
+                    <label>Target Markets (optional)</label>
+                    <select id="targetMarket">
+                        <option>Global</option>
+                        <option>North America</option>
+                        <option>Europe</option>
+                        <option>Asia Pacific</option>
+                        <option>Latin America</option>
+                        <option>India</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="assessRisk()">Assess Risk</button>
+
+                <div id="riskReport" class="risk-report">
+                    <div class="risk-score">
+                        <div class="risk-gauge" style="background: linear-gradient(135deg, #ff6348 0%, #ff4757 100%);">
+                            7.5/10
+                        </div>
+                        <div>
+                            <h3>High Risk Feature</h3>
+                            <p>CSS :has() selector will impact 32% of your global user base</p>
+                        </div>
+                    </div>
+
+                    <div class="grid">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #ff6348 0%, #ff4757 100%);">
+                            <h3>Global Support</h3>
+                            <div class="value">68%</div>
+                            <div class="detail">Browser coverage</div>
+                        </div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #ffa502 0%, #ff6348 100%);">
+                            <h3>Users Impacted</h3>
+                            <div class="value">8.2M</div>
+                            <div class="detail">Potential degradation</div>
+                        </div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #45e897 0%, #2ed573 100%);">
+                            <h3>Safe Adoption</h3>
+                            <div class="value">2026</div>
+                            <div class="detail">Expected timeline</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 30px;">Impact Timeline</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <strong>Today (2025)</strong>
+                            <div style="margin-top: 5px;">68% global support - High risk for production use</div>
+                        </div>
+                        <div class="timeline-item">
+                            <strong>Q2 2026</strong>
+                            <div style="margin-top: 5px;">Expected to reach 80% support - Medium risk</div>
+                        </div>
+                        <div class="timeline-item">
+                            <strong>Q4 2026</strong>
+                            <div style="margin-top: 5px;">Expected to reach 90% support - Low risk, safe for adoption</div>
+                        </div>
+                        <div class="timeline-item">
+                            <strong>2027</strong>
+                            <div style="margin-top: 5px;">Becomes Baseline - Recommended for all UIs</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 30px;">💡 Safer Alternatives (Baseline-Aligned)</h3>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <div>
+                                <div class="feature-name">Use JavaScript classList + querySelectorAll</div>
+                                <div style="font-size: 0.9em; color: #666;">100% support, requires more code but universally compatible</div>
+                            </div>
+                            <span class="badge low-risk">Recommended</span>
+                        </li>
+                        <li class="feature-item">
+                            <div>
+                                <div class="feature-name">Polyfill with :has-polyfill library</div>
+                                <div style="font-size: 0.9em; color: #666;">Adds 8KB, slight performance penalty</div>
+                            </div>
+                            <span class="badge medium-risk">Alternative</span>
+                        </li>
+                        <li class="feature-item">
+                            <div>
+                                <div class="feature-name">Progressive enhancement strategy</div>
+                                <div style="font-size: 0.9em; color: #666;">Provide fallback styles for unsupported browsers</div>
+                            </div>
+                            <span class="badge low-risk">Best Practice</span>
+                        </li>
+                    </ul>
+
+                    <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-radius: 10px; border-left: 4px solid #ffa502;">
+                        <strong>⚠️ Recommendation:</strong> Delay adoption until Q4 2026 or implement with progressive enhancement. Consider the JavaScript alternative for critical UIs serving India and Latin America markets.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Compatibility analysis
+        function analyzeCompatibility() {
+            document.getElementById('compatResult').style.display = 'block';
+        }
+
+        // Risk assessment
+        function assessRisk() {
+            const report = document.getElementById('riskReport');
+            report.classList.add('show');
+            report.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Initialize charts
+        window.onload = function() {
+            // Trend Chart
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    datasets: [{
+                        label: 'Baseline Compliance %',
+                        data: [72, 74, 76, 78, 80, 83, 85, 86, 87.3],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'High-Risk Features',
+                        data: [28, 26, 24, 22, 20, 17, 15, 14, 12],
+                        borderColor: '#ff4757',
+                        backgroundColor: 'rgba(255, 71, 87, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // Team Chart
+            const teamCtx = document.getElementById('teamChart').getContext('2d');
+            new Chart(teamCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Baseline Features', 'Legacy Features', 'Deprecated Code', 'Modern (Non-Baseline)'],
+                    datasets: [{
+                        data: [43, 28, 15, 14],
+                        backgroundColor: ['#2ed573', '#ffa502', '#ff4757', '#667eea']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        };
+    </script>
+</body>
+</html>
